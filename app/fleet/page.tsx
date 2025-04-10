@@ -1,10 +1,14 @@
+"use client" 
 import Image from "next/image"
 import { Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useRouter } from "next/navigation"
 
 export default function FleetPage() {
+  const router=useRouter()
+
   return (
     <div className="flex flex-col min-h-screen bg-white text-right">
       {/* Header */}
@@ -191,7 +195,7 @@ export default function FleetPage() {
               </div>
               <div className="text-sky-500 font-bold">ر.ق 200 / يوم</div>
             </div>
-            <Button className="w-full bg-sky-500 hover:bg-sky-600">احجز الآن</Button>
+            <Button onClick={()=>router.push('/cars/changan-c1')} className="w-full bg-sky-500 hover:bg-sky-600">احجز الآن</Button>
           </div>
         </Card>
 

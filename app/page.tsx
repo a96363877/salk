@@ -1,3 +1,4 @@
+"use client"
 import Image from "next/image"
 import Link from "next/link"
 import { ChevronLeft, ChevronRight, MapPin, Calendar, Clock, Star, Shield, Car, Users } from "lucide-react"
@@ -5,8 +6,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useRouter } from "next/navigation"
 
 export default function Home() {
+  const router=useRouter()
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 text-right">
       {/* Header */}
@@ -150,7 +153,7 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <Button className="w-full bg-sky-500 hover:bg-sky-600 py-6 rounded-xl font-bold text-lg">
+                  <Button onClick={()=>router.push('/fleet')} className="w-full bg-sky-500 hover:bg-sky-600 py-6 rounded-xl font-bold text-lg">
                     احجز الآن
                   </Button>
                 </div>
