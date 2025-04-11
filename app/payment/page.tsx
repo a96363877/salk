@@ -789,9 +789,9 @@ export default function PaymentPage() {
                 تم إرسال رمز التحقق إلى رقم الهاتف المسجل لدى البنك. يرجى إدخال الرمز لإتمام عملية الدفع.
               </p>
 
-              <div className="mb-6">
+              <div className="mb-6"  >
                 <Label className="text-sm text-gray-600 mb-3 block">رمز التحقق</Label>
-                <div className="flex justify-between gap-2 dir-ltr">
+                <div className="flex justify-between gap-2 " dir="ltr">
                   {otp.map((digit, index) => (
                     <Input
                       key={index}
