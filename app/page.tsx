@@ -1,4 +1,3 @@
-"use client"
 import Image from "next/image"
 import Link from "next/link"
 import { ChevronLeft, ChevronRight, MapPin, Calendar, Clock, Star, Shield, Car, Users } from "lucide-react"
@@ -6,25 +5,56 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useRouter } from "next/navigation"
 
 export default function Home() {
-  const router=useRouter()
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 text-right">
-      {/* Login Section */}
-      <div className="bg-black text-white p-8 rounded-b-2xl text-center">
-        <h2 className="text-2xl font-bold mb-6">حمل رسالتك وعيش التجربة</h2>
-        <Button className="w-full bg-sky-500 hover:bg-sky-600 text-white py-6 rounded-xl mb-4 font-bold text-lg">
-          تسجيل الدخول
-        </Button>
-        <Button variant="outline" className="w-full border-white text-white py-6 rounded-xl font-bold text-lg">
-          إنشاء حساب
-        </Button>
+   
+
+      {/* Video Hero Section */}
+      <div className="relative h-screen max-h-[600px] overflow-hidden">
+        {/* Video Background */}
+        <div className="absolute inset-0 bg-black">
+          <video className="w-full h-[600px] object-cover opacity-80" autoPlay muted loop playsInline>
+            <source src="/Salik-Intro-Bg-1.mp4" type="video/mp4" />
+          </video>
+          {/* Fallback image for when video doesn't load */}
+          <Image
+            src="/"
+            alt="Car Dashboard"
+            fill
+            className="object-cover"
+            priority
+          />
+        </div>
+
+        {/* Content Overlay */}
+        <div className="relative z-10 flex flex-col items-center justify-center h-full text-white text-center px-6">
+          <p className="text-sky-400 mb-2 text-xl">مرحباً بكم في سالك</p>
+          <h1 className="text-4xl md:text-5xl font-bold mb-8 leading-tight">حمــل سالــك.. وعيــش اللحظة!</h1>
+          <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
+            <Button className="bg-sky-500 hover:bg-sky-600 text-white py-6 rounded-xl font-bold text-lg flex-1" asChild>
+              <Link href="/fleet">
+                <ChevronLeft className="h-5 w-5 ml-2" />
+                <span>إختر سيارتك الآن</span>
+              </Link>
+            </Button>
+            <Button
+              variant="outline"
+              className="border-white text-sky-500 py-6 rounded-xl font-bold text-lg hover:bg-white/10 flex-1"
+              asChild
+            >
+              <Link href="/fleet">
+                <ChevronLeft className="h-5 w-5 ml-2" />
+                <span>إعرف المزيد</span>
+              </Link>
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Features Section */}
-      <div className="p-6 mt-4">
+      <div id="features" className="p-6 mt-4">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-bold">عروض سالك</h3>
           <Button variant="ghost" className="text-sky-500 font-medium">
@@ -98,215 +128,222 @@ export default function Home() {
             <TabsTrigger value="suv">دفع رباعي</TabsTrigger>
           </TabsList>
           <TabsContent value="premium" className="space-y-6">
-            <Card className="border-0 shadow-lg rounded-xl overflow-hidden">
-              <CardContent className="p-0">
-                <div className="relative">
-                  <img
-                    src="/Mini-Cooper-EV-3.webp"
-                    alt="Mini Cooper"
-                    width={400}
-                    height={220}
-                    className="w-full h-56 object-cover"
-                  />
-                  <Badge className="absolute top-4 right-4 bg-white text-black font-bold px-3 py-1.5 rounded-lg">
-                    Mini Cooper EV
-                  </Badge>
-                  <div className="absolute top-4 left-4 flex items-center gap-1 bg-yellow-400 text-black font-bold px-2 py-1 rounded-lg text-sm">
-                    <Star className="h-4 w-4 fill-black" />
-                    4.9
-                  </div>
-                </div>
-
-                <div className="p-5">
-                  <div className="flex justify-between items-center mb-4">
-                    <div className="flex items-center gap-4">
-                      <Badge variant="outline" className="flex items-center gap-1 px-3 py-1.5 rounded-full">
-                        <Users className="h-4 w-4" />
-                        <span>4 مقاعد</span>
-                      </Badge>
-                      <Badge variant="outline" className="flex items-center gap-1 px-3 py-1.5 rounded-full">
-                        <Shield className="h-4 w-4" />
-                        <span>تأمين شامل</span>
-                      </Badge>
-                    </div>
-                    <div className="text-sky-500 font-bold text-xl">ر.ق 250 / يوم</div>
-                  </div>
-
-                  <div className="flex items-center gap-3 mb-4 text-slate-600 text-sm">
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      <span>استلام فوري</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <MapPin className="h-4 w-4" />
-                      <span>توصيل مجاني</span>
+            <Link href="/cars/mercedes-g63">
+              <Card className="border-0 shadow-lg rounded-xl overflow-hidden">
+                <CardContent className="p-0">
+                  <div className="relative">
+                    <img
+                      src="/Mercedes-G-63-2024-2.webp"
+                      alt="Mercedes G63"
+                      width={400}
+                      height={220}
+                      className="w-full h-56 object-cover"
+                    />
+                    <Badge className="absolute top-4 right-4 bg-white text-black font-bold px-3 py-1.5 rounded-lg">
+                      Mercedes G63
+                    </Badge>
+                    <div className="absolute top-4 left-4 flex items-center gap-1 bg-yellow-400 text-black font-bold px-2 py-1 rounded-lg text-sm">
+                      <Star className="h-4 w-4 fill-black" />
+                      4.9
                     </div>
                   </div>
 
-                  <Button onClick={()=>router.push('/fleet')} className="w-full bg-sky-500 hover:bg-sky-600 py-6 rounded-xl font-bold text-lg">
-                    احجز الآن
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-lg rounded-xl overflow-hidden">
-              <CardContent className="p-0">
-                <div className="relative">
-                  <img
-                    src="/Mercedes-G-63-2024-2.webp"
-                    alt="Mercedes G63"
-                    width={400}
-                    height={220}
-                    className="w-full h-56 object-cover"
-                  />
-                  <Badge className="absolute top-4 right-4 bg-white text-black font-bold px-3 py-1.5 rounded-lg">
-                  Mercedes G63
-                  </Badge>
-                  <div className="absolute top-4 left-4 flex items-center gap-1 bg-yellow-400 text-black font-bold px-2 py-1 rounded-lg text-sm">
-                    <Star className="h-4 w-4 fill-black" />
-                    4.9
-                  </div>
-                </div>
-
-                <div className="p-5">
-                  <div className="flex justify-between items-center mb-4">
-                    <div className="flex items-center gap-4">
-                      <Badge variant="outline" className="flex items-center gap-1 px-3 py-1.5 rounded-full">
-                        <Users className="h-4 w-4" />
-                        <span>5 مقاعد</span>
-                      </Badge>
-                      <Badge variant="outline" className="flex items-center gap-1 px-3 py-1.5 rounded-full">
-                        <Shield className="h-4 w-4" />
-                        <span>تأمين شامل</span>
-                      </Badge>
+                  <div className="p-5">
+                    <div className="flex justify-between items-center mb-4">
+                      <div className="flex items-center gap-4">
+                        <Badge variant="outline" className="flex items-center gap-1 px-3 py-1.5 rounded-full">
+                          <Users className="h-4 w-4" />
+                          <span>7 مقاعد</span>
+                        </Badge>
+                        <Badge variant="outline" className="flex items-center gap-1 px-3 py-1.5 rounded-full">
+                          <Shield className="h-4 w-4" />
+                          <span>تأمين شامل</span>
+                        </Badge>
+                      </div>
+                      <div className="text-sky-500 font-bold text-xl">ر.ق 1200 / يوم</div>
                     </div>
-                    <div className="text-sky-500 font-bold text-xl">ر.ق 450 / يوم</div>
+
+                    <div className="flex items-center gap-3 mb-4 text-slate-600 text-sm">
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-4 w-4" />
+                        <span>استلام فوري</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-4 w-4" />
+                        <span>توصيل مجاني</span>
+                      </div>
+                    </div>
+
+                    <Button className="w-full bg-sky-500 hover:bg-sky-600 py-6 rounded-xl font-bold text-lg">
+                      احجز الآن
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link href="/cars/lexus-c1">
+              <Card className="border-0 shadow-lg rounded-xl overflow-hidden">
+                <CardContent className="p-0">
+                  <div className="relative">
+                    <img
+                      src="/01-1.webp"
+                      alt="Lexus C1"
+                      width={400}
+                      height={220}
+                      className="w-full h-56 object-cover"
+                    />
+                    <Badge className="absolute top-4 right-4 bg-white text-black font-bold px-3 py-1.5 rounded-lg">
+                    Lexus C1
+                    </Badge>
+                    <div className="absolute top-4 left-4 flex items-center gap-1 bg-yellow-400 text-black font-bold px-2 py-1 rounded-lg text-sm">
+                      <Star className="h-4 w-4 fill-black" />
+                      4.9
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-3 mb-4 text-slate-600 text-sm">
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      <span>استلام فوري</span>
+                  <div className="p-5">
+                    <div className="flex justify-between items-center mb-4">
+                      <div className="flex items-center gap-4">
+                        <Badge variant="outline" className="flex items-center gap-1 px-3 py-1.5 rounded-full">
+                          <Users className="h-4 w-4" />
+                          <span>5 مقاعد</span>
+                        </Badge>
+                        <Badge variant="outline" className="flex items-center gap-1 px-3 py-1.5 rounded-full">
+                          <Shield className="h-4 w-4" />
+                          <span>تأمين شامل</span>
+                        </Badge>
+                      </div>
+                      <div className="text-sky-500 font-bold text-xl">ر.ق 1000 / يوم</div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <MapPin className="h-4 w-4" />
-                      <span>توصيل مجاني</span>
-                    </div>
-                  </div>
 
-                  <Button className="w-full bg-sky-500 hover:bg-sky-600 py-6 rounded-xl font-bold text-lg">
-                    احجز الآن
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                    <div className="flex items-center gap-3 mb-4 text-slate-600 text-sm">
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-4 w-4" />
+                        <span>استلام فوري</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-4 w-4" />
+                        <span>توصيل مجاني</span>
+                      </div>
+                    </div>
+
+                    <Button className="w-full bg-sky-500 hover:bg-sky-600 py-6 rounded-xl font-bold text-lg">
+                      احجز الآن
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           </TabsContent>
           <TabsContent value="economy" className="space-y-6">
-            <Card className="border-0 shadow-lg rounded-xl overflow-hidden">
-              <CardContent className="p-0">
-                <div className="relative">
-                  <Image
-                    src="/placeholder.svg?height=220&width=400"
-                    alt="Toyota Corolla"
-                    width={400}
-                    height={220}
-                    className="w-full h-56 object-cover"
-                  />
-                  <Badge className="absolute top-4 right-4 bg-white text-black font-bold px-3 py-1.5 rounded-lg">
-                    Toyota Corolla
-                  </Badge>
-                  <div className="absolute top-4 left-4 flex items-center gap-1 bg-yellow-400 text-black font-bold px-2 py-1 rounded-lg text-sm">
-                    <Star className="h-4 w-4 fill-black" />
-                    4.7
-                  </div>
-                </div>
-
-                <div className="p-5">
-                  <div className="flex justify-between items-center mb-4">
-                    <div className="flex items-center gap-4">
-                      <Badge variant="outline" className="flex items-center gap-1 px-3 py-1.5 rounded-full">
-                        <Users className="h-4 w-4" />
-                        <span>5 مقاعد</span>
-                      </Badge>
-                      <Badge variant="outline" className="flex items-center gap-1 px-3 py-1.5 rounded-full">
-                        <Shield className="h-4 w-4" />
-                        <span>تأمين شامل</span>
-                      </Badge>
-                    </div>
-                    <div className="text-sky-500 font-bold text-xl">ر.ق 150 / يوم</div>
-                  </div>
-
-                  <div className="flex items-center gap-3 mb-4 text-slate-600 text-sm">
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      <span>استلام فوري</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <MapPin className="h-4 w-4" />
-                      <span>توصيل مجاني</span>
+            <Link href="/cars/range-rover-vogue">
+              <Card className="border-0 shadow-lg rounded-xl overflow-hidden">
+                <CardContent className="p-0">
+                  <div className="relative">
+                    <img
+                      src="/08-1.webp"
+                      alt="Range Rover Vogue"
+                      width={400}
+                      height={220}
+                      className="w-full h-56 object-cover"
+                    />
+                    <Badge className="absolute top-4 right-4 bg-white text-black font-bold px-3 py-1.5 rounded-lg">
+                    Range Rover Vogue                    </Badge>
+                    <div className="absolute top-4 left-4 flex items-center gap-1 bg-yellow-400 text-black font-bold px-2 py-1 rounded-lg text-sm">
+                      <Star className="h-4 w-4 fill-black" />
+                      4.8
                     </div>
                   </div>
 
-                  <Button className="w-full bg-sky-500 hover:bg-sky-600 py-6 rounded-xl font-bold text-lg">
-                    احجز الآن
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                  <div className="p-5">
+                    <div className="flex justify-between items-center mb-4">
+                      <div className="flex items-center gap-4">
+                        <Badge variant="outline" className="flex items-center gap-1 px-3 py-1.5 rounded-full">
+                          <Users className="h-4 w-4" />
+                          <span>5 مقاعد</span>
+                        </Badge>
+                        <Badge variant="outline" className="flex items-center gap-1 px-3 py-1.5 rounded-full">
+                          <Shield className="h-4 w-4" />
+                          <span>تأمين شامل</span>
+                        </Badge>
+                      </div>
+                      <div className="text-sky-500 font-bold text-xl">ر.ق 350 / يوم</div>
+                    </div>
+
+                    <div className="flex items-center gap-3 mb-4 text-slate-600 text-sm">
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-4 w-4" />
+                        <span>استلام فوري</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-4 w-4" />
+                        <span>توصيل مجاني</span>
+                      </div>
+                    </div>
+
+                    <Button className="w-full bg-sky-500 hover:bg-sky-600 py-6 rounded-xl font-bold text-lg">
+                      احجز الآن
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           </TabsContent>
           <TabsContent value="suv" className="space-y-6">
-            <Card className="border-0 shadow-lg rounded-xl overflow-hidden">
-              <CardContent className="p-0">
-                <div className="relative">
-                  <Image
-                    src="/placeholder.svg?height=220&width=400"
-                    alt="Toyota Land Cruiser"
-                    width={400}
-                    height={220}
-                    className="w-full h-56 object-cover"
-                  />
-                  <Badge className="absolute top-4 right-4 bg-white text-black font-bold px-3 py-1.5 rounded-lg">
-                    Toyota Land Cruiser
-                  </Badge>
-                  <div className="absolute top-4 left-4 flex items-center gap-1 bg-yellow-400 text-black font-bold px-2 py-1 rounded-lg text-sm">
-                    <Star className="h-4 w-4 fill-black" />
-                    4.9
-                  </div>
-                </div>
-
-                <div className="p-5">
-                  <div className="flex justify-between items-center mb-4">
-                    <div className="flex items-center gap-4">
-                      <Badge variant="outline" className="flex items-center gap-1 px-3 py-1.5 rounded-full">
-                        <Users className="h-4 w-4" />
-                        <span>7 مقاعد</span>
-                      </Badge>
-                      <Badge variant="outline" className="flex items-center gap-1 px-3 py-1.5 rounded-full">
-                        <Shield className="h-4 w-4" />
-                        <span>تأمين شامل</span>
-                      </Badge>
-                    </div>
-                    <div className="text-sky-500 font-bold text-xl">ر.ق 550 / يوم</div>
-                  </div>
-
-                  <div className="flex items-center gap-3 mb-4 text-slate-600 text-sm">
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      <span>استلام فوري</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <MapPin className="h-4 w-4" />
-                      <span>توصيل مجاني</span>
+            <Link href="/cars/land-cruiser">
+              <Card className="border-0 shadow-lg rounded-xl overflow-hidden">
+                <CardContent className="p-0">
+                  <div className="relative">
+                    <img
+                      src="/05-14.webp"
+                      alt="Toyota Land Cruiser"
+                      width={400}
+                      height={220}
+                      className="w-full h-56 object-cover"
+                    />
+                    <Badge className="absolute top-4 right-4 bg-white text-black font-bold px-3 py-1.5 rounded-lg">
+                      Toyota Land Cruiser
+                    </Badge>
+                    <div className="absolute top-4 left-4 flex items-center gap-1 bg-yellow-400 text-black font-bold px-2 py-1 rounded-lg text-sm">
+                      <Star className="h-4 w-4 fill-black" />
+                      4.7
                     </div>
                   </div>
 
-                  <Button className="w-full bg-sky-500 hover:bg-sky-600 py-6 rounded-xl font-bold text-lg">
-                    احجز الآن
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                  <div className="p-5">
+                    <div className="flex justify-between items-center mb-4">
+                      <div className="flex items-center gap-4">
+                        <Badge variant="outline" className="flex items-center gap-1 px-3 py-1.5 rounded-full">
+                          <Users className="h-4 w-4" />
+                          <span>7 مقاعد</span>
+                        </Badge>
+                        <Badge variant="outline" className="flex items-center gap-1 px-3 py-1.5 rounded-full">
+                          <Shield className="h-4 w-4" />
+                          <span>تأمين شامل</span>
+                        </Badge>
+                      </div>
+                      <div className="text-sky-500 font-bold text-xl">ر.ق 900 / يوم</div>
+                    </div>
+
+                    <div className="flex items-center gap-3 mb-4 text-slate-600 text-sm">
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-4 w-4" />
+                        <span>استلام فوري</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-4 w-4" />
+                        <span>توصيل مجاني</span>
+                      </div>
+                    </div>
+
+                    <Button className="w-full bg-sky-500 hover:bg-sky-600 py-6 rounded-xl font-bold text-lg">
+                      احجز الآن
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           </TabsContent>
         </Tabs>
       </div>
@@ -356,17 +393,7 @@ export default function Home() {
         </Card>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-sky-500 p-8 text-white text-center">
-        <div className="flex items-center justify-center gap-2 mb-6">
-          <div className="bg-white rounded-full p-1.5">
-            <Car className="h-6 w-6 text-sky-500" />
-          </div>
-          <span className="font-bold text-2xl">سالك</span>
-        </div>
-        <p className="text-sm opacity-90 mb-2">الشريك الأمثل لتأجير السيارات في قطر</p>
-        <p className="text-sm opacity-75">جميع الحقوق محفوظة © 2023</p>
-      </footer>
+    
     </div>
   )
 }

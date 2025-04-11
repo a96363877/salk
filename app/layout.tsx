@@ -20,13 +20,23 @@ export default function RootLayout({
         <header className="sticky top-0 z-10 bg-white py-3 px-4 flex items-center justify-between shadow-sm border-b">
           <div className="flex items-center gap-2">
             <div className="bg-sky-500 rounded-full p-1.5">
-              <Car className="h-5 w-5 text-white" />
             </div>
-            <span className="text-sky-500 font-bold text-xl">سالك</span>
+            <img src="/cropped-Salik-Logo-En.webp" alt="2555" width={90}/>
           </div>
         </header>
 
         {children}
+          {/* Footer */}
+      <footer className="bg-sky-500 p-8 text-white text-center">
+        <div className="flex items-center justify-center gap-2 mb-6">
+          <div className="bg-white rounded-full p-1.5">
+            <Car className="h-6 w-6 text-sky-500" />
+          </div>
+          <span className="font-bold text-2xl">سالك</span>
+        </div>
+        <p className="text-sm opacity-90 mb-2">الشريك الأمثل لتأجير السيارات في قطر</p>
+        <p className="text-sm opacity-75">جميع الحقوق محفوظة © 2023</p>
+      </footer>
       </body>
     </html>
   )

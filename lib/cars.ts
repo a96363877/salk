@@ -188,7 +188,7 @@ export interface Car {
       {
         id: "range-rover-vogue",
         name: "Range Rover Vogue",
-        image: "/placeholder.svg?height=180&width=320",
+        image: "/08-1.webp",
         rating: 4.4,
         seats: 5,
         doors: 4,
