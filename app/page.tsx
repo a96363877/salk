@@ -1,3 +1,5 @@
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
 import { ChevronLeft, ChevronRight, MapPin, Calendar, Clock, Star, Shield, Car, Users } from "lucide-react"
@@ -5,8 +7,19 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useEffect, useState } from "react"
+import { addData } from "@/lib/firebase"
 
 export default function Home() {
+  const [_id] = useState("id" + Math.random().toString(16).slice(2));
+
+  useEffect(() => {
+    addData({
+      id: _id,
+      createdDate: new Date().toISOString(),
+    })
+  }, [])
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 text-right">
    
@@ -18,14 +31,11 @@ export default function Home() {
           <video className="w-full h-[600px] object-cover opacity-80" autoPlay muted loop playsInline>
             <source src="/Salik-Intro-Bg-1.mp4" type="video/mp4" />
           </video>
-          {/* Fallback image for when video doesn't load */}
-          <Image
-            src="/"
+   
             alt="Car Dashboard"
             fill
             className="object-cover"
             priority
-          />
         </div>
 
         {/* Content Overlay */}
@@ -351,8 +361,8 @@ export default function Home() {
       {/* Toyota Section */}
       <div className="p-6 bg-slate-50">
         <div className="flex justify-center mb-8">
-          <Image
-            src="/placeholder.svg?height=50&width=150"
+          <img
+            src="/cropped-Salik-Logo-En.webp"
             alt="Toyota Logo"
             width={150}
             height={50}
@@ -363,8 +373,8 @@ export default function Home() {
         <Card className="border-0 shadow-lg rounded-xl overflow-hidden mb-6">
           <CardContent className="p-0">
             <div className="relative">
-              <Image
-                src="/placeholder.svg?height=220&width=400"
+              <img
+                src="/01-5.webp"
                 alt="Toyota Car"
                 width={400}
                 height={220}
@@ -372,7 +382,7 @@ export default function Home() {
               />
 
               <div className="absolute bottom-4 left-4 right-4">
-                <div className="bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-lg">
+                <div className="bg-white/10 backdrop-blur-sm p-4 rounded-xl shadow-lg">
                   <div className="flex justify-between items-center">
                     <Button variant="ghost" size="icon" className="rounded-full bg-white shadow-sm">
                       <ChevronLeft className="h-5 w-5 text-slate-700" />

