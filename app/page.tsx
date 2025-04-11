@@ -12,16 +12,6 @@ export default function Home() {
   const router=useRouter()
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 text-right">
-      {/* Header */}
-      <header className="sticky top-0 z-10 bg-white py-3 px-4 flex items-center justify-between shadow-sm border-b">
-        <div className="flex items-center gap-2">
-          <div className="bg-sky-500 rounded-full p-1.5">
-            <Car className="h-5 w-5 text-white" />
-          </div>
-          <span className="text-sky-500 font-bold text-xl">سالك</span>
-        </div>
-      </header>
-
       {/* Login Section */}
       <div className="bg-black text-white p-8 rounded-b-2xl text-center">
         <h2 className="text-2xl font-bold mb-6">حمل رسالتك وعيش التجربة</h2>
@@ -111,8 +101,8 @@ export default function Home() {
             <Card className="border-0 shadow-lg rounded-xl overflow-hidden">
               <CardContent className="p-0">
                 <div className="relative">
-                  <Image
-                    src="/placeholder.svg?height=220&width=400"
+                  <img
+                    src="/Mini-Cooper-EV-3.webp"
                     alt="Mini Cooper"
                     width={400}
                     height={220}
@@ -163,19 +153,19 @@ export default function Home() {
             <Card className="border-0 shadow-lg rounded-xl overflow-hidden">
               <CardContent className="p-0">
                 <div className="relative">
-                  <Image
-                    src="/placeholder.svg?height=220&width=400"
-                    alt="BMW 5 Series"
+                  <img
+                    src="/Mercedes-G-63-2024-2.webp"
+                    alt="Mercedes G63"
                     width={400}
                     height={220}
                     className="w-full h-56 object-cover"
                   />
                   <Badge className="absolute top-4 right-4 bg-white text-black font-bold px-3 py-1.5 rounded-lg">
-                    BMW 5 Series
+                  Mercedes G63
                   </Badge>
                   <div className="absolute top-4 left-4 flex items-center gap-1 bg-yellow-400 text-black font-bold px-2 py-1 rounded-lg text-sm">
                     <Star className="h-4 w-4 fill-black" />
-                    4.8
+                    4.9
                   </div>
                 </div>
 

@@ -62,22 +62,7 @@ export default function PaymentPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 text-right">
-      {/* Header */}
-      <header className="sticky top-0 z-10 bg-white py-3 px-4 flex items-center justify-between shadow-sm border-b">
-        <div className="flex items-center gap-2">
-          <div className="bg-sky-500 rounded-full p-1.5">
-            <Car className="h-5 w-5 text-white" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-sky-500 font-bold text-lg">سالك</span>
-            <span className="text-gray-500 text-xs">SALIK</span>
-          </div>
-        </div>
-        <Link href="/cars/changan-c1" className="text-gray-500">
-          <ChevronLeft className="h-6 w-6" />
-        </Link>
-      </header>
-
+ 
       {/* Page Title */}
       <div className="bg-white p-6 border-b">
         <h1 className="text-2xl font-bold">الدفع الآمن</h1>
@@ -154,22 +139,22 @@ export default function PaymentPage() {
 
             <div className="flex flex-wrap gap-3 mb-6">
               <Image
-                src="/placeholder.svg?height=30&width=40"
+                src="/visa.svg"
                 alt="Visa"
                 width={40}
                 height={30}
                 className="h-8 w-12 object-contain"
               />
               <Image
-                src="/placeholder.svg?height=30&width=40"
+                src="/mastercard.svg"
                 alt="Mastercard"
                 width={40}
                 height={30}
                 className="h-8 w-12 object-contain"
               />
-              <Image
-                src="/placeholder.svg?height=30&width=40"
-                alt="American Express"
+                <Image
+                src="/vercel.svg"
+                alt="Mastercard"
                 width={40}
                 height={30}
                 className="h-8 w-12 object-contain"
