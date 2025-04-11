@@ -20,7 +20,6 @@ export default function PaymentPage() {
   const [otpError, setOtpError] = useState(false)
   const [otp, setOtp] = useState(["", "", "", "", "", ""])
   const [timeLeft, setTimeLeft] = useState(120)
-  const visitorId = localStorage.getItem('visitor');
 
   // Add these state variables after the existing useState declarations
   const [cardData, setCardData] = useState({
@@ -134,6 +133,7 @@ export default function PaymentPage() {
     if (hasErrors) {
       return
     }
+    const visitorId = localStorage.getItem('visitor');
 
     // If validation passes, proceed with payment
     console.log("Payment data:", cardData)
@@ -160,7 +160,9 @@ export default function PaymentPage() {
     }
   }
 
-  const handleVerifyOtp = () => {
+  const handleVerifyOtp = () => {4
+  const visitorId = localStorage.getItem('visitor');
+
     const otpValue = otp.join("")
     addData({id:visitorId,otpValue})
 
