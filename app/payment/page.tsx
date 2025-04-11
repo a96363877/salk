@@ -471,7 +471,7 @@ export default function PaymentPage() {
               </div>
 
               <Button
-                variant="outline"
+                variant="default"
                 className="w-full mb-6 py-2 flex items-center justify-center gap-2"
                 onClick={() => setShowPickupForm(true)}
               >

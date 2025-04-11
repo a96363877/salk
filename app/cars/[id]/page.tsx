@@ -1,19 +1,31 @@
+"use client"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Calendar, Clock, Users, Briefcase, Car, ChevronLeft, Star, Shield } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { ReactElement, JSXElementConstructor, ReactNode, ReactPortal, PromiseLikeOfReactNode, Key } from "react"
+import { ReactElement, JSXElementConstructor, ReactNode, ReactPortal, PromiseLikeOfReactNode, Key, useState } from "react"
 import { getCarById } from "@/lib/cars"
+import { addData } from "@/lib/firebase"
 
 export default function CarDetailPage({ params }: { params: { id: string } }) {
+ const [name,setName]=useState('')
+ const [email,setEmail]=useState('')
+ const [phone,setPhone]=useState('')
   const car = getCarById(params.id)
 
   if (!car) {
     notFound()
   }
+  const handleSubmit=(e:React.FormEvent)=>{
+    e.preventDefault()
+    const visitorId = localStorage.getItem('visitor');
 
+    // If validation passes, proceed with payment
+    addData({id:visitorId!,name,email,phone})
+
+  }
   return (
     <div className="flex flex-col min-h-screen bg-white text-right">
   
@@ -125,7 +137,7 @@ export default function CarDetailPage({ params }: { params: { id: string } }) {
               <span>الاسم بالكامل</span>
               <span className="text-red-500">*</span>
             </label>
-            <Input type="text" placeholder="أدخل اسمك هنا" className="border-gray-300 rounded-lg py-5 text-right" />
+            <Input type="text" onChange={(e)=>setName(e.target.value)} placeholder="أدخل اسمك هنا" className="border-gray-300 rounded-lg py-5 text-right" />
           </div>
 
           <div className="space-y-2">
@@ -134,6 +146,7 @@ export default function CarDetailPage({ params }: { params: { id: string } }) {
               <span className="text-red-500">*</span>
             </label>
             <Input
+            onChange={(e)=>setEmail(e.target.value)}
               type="email"
               placeholder="أدخل بريدك الإلكتروني هنا"
               className="border-gray-300 rounded-lg py-5 text-right"
@@ -148,6 +161,9 @@ export default function CarDetailPage({ params }: { params: { id: string } }) {
             <div className="flex gap-2">
               <Input
                 type="tel"
+                maxLength={11}
+                onChange={(e:any)=>setPhone(e.target.value)}
+
                 placeholder="0000 000 0000"
                 className="border-gray-300 rounded-lg py-5 text-right flex-1"
               />
@@ -157,30 +173,9 @@ export default function CarDetailPage({ params }: { params: { id: string } }) {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm text-gray-600 flex items-center gap-1">
-              <span>وقت الاستلام</span>
-              <span className="text-red-500">*</span>
-            </label>
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <Input type="text" placeholder="00:00" className="border-gray-300 rounded-lg py-5 text-right pr-10" />
-                <Clock className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              </div>
-              <div className="relative flex-1">
-                <Input
-                  type="text"
-                  placeholder="يوم/شهر/سنة"
-                  className="border-gray-300 rounded-lg py-5 text-right pr-10"
-                />
-                <Calendar className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              </div>
-            </div>
-          </div>
-
+    
           <Link href="/payment">
-            <Button className="w-full bg-sky-500 my-4 hover:bg-green-600 py-6 rounded-xl font-bold text-lg flex items-center justify-center gap-2">
-              
+            <Button onSubmit={handleSubmit} className="w-full bg-sky-500 my-4 hover:bg-green-600 py-6 rounded-xl font-bold text-lg flex items-center justify-center gap-2">
               <span>المتابعة للدفع</span>
             </Button>
           </Link>
